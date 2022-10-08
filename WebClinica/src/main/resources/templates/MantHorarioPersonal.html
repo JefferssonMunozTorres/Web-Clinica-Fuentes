@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Horario Personal</title>
+<link th:replace="plantilla/PlantillaAdmin :: icono">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+</head>
+
+<style>
+.has-error .help-block {
+	color: red;
+}
+</style>
+<body>
+	<div th:replace="plantilla/PlantillaAdmin :: estilos"></div>
+	<div class="app">
+		<div class="app-wrap">
+			<div th:replace="plantilla/PlantillaAdmin :: loading"></div>
+			<header th:replace="plantilla/PlantillaAdmin :: header"></header>
+
+			<div class="app-container">
+				<aside th:replace="plantilla/PlantillaAdmin :: aside"></aside>
+
+				<div class="app-main" id="main">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card card-statistics">
+									<div class="card-header" sec:authorize='hasAnyAuthority("Administrador")'  >
+										<div class="card-heading">
+											<button type="button" class="btn btn-success"
+												data-toggle="modal" data-target="#modalGuardar">
+												<i class="fa fa-plus"></i> Nuevo Horario
+											</button>
+
+										</div>
+									</div>
+									<div class="card-body">
+										<form>
+											<div class="form-group row col-sm-6">
+												<label for="id_turno" class="col-sm-2 col-form-label">Turno</label>
+												<div class="col-sm-10">
+													<select class="form-control" id="id_turno" name="id_turno"
+														onchange="Listar()">
+														<option th:each="dato:${turnos}"
+															th:value="${dato.id_turno}" th:text="${dato.nombre}"></option>
+													</select>
+												</div>
+											</div>
+										</form>
+
+
+										<div id="resultado" class="mt-2"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+
+				</div>
+
+			</div>
+
+
+			<div class="modal fade" id="modalGuardar" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title" id="exampleModalLongTitle">Nuevo
+								Horario</h4>
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<form id="frmRegistro" method="post">
+							<div class="modal-body">
+								<div class="form-group">
+									<label for="id_turnoHorario">Turno</label> <select
+										class="form-control" id="id_turnoHorario"
+										name="id_turnoHorario" onchange="ListarMedicosDisp()">
+										<option th:each="dato:${turnos}" th:value="${dato.id_turno}"
+											th:text="${dato.nombre}"></option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label for="id_personal">Medico</label> <select
+										class="form-control" id="id_personal" name="id_personal">
+										<option value="">Seleccione</option>
+									</select>
+								</div>
+
+							</div>
+							<div class="modal-footer">
+								<button type="reset"
+									class="btn btn-square btn-outline-secondary"
+									data-dismiss="modal">Cerrar</button>
+								<button type="button" class="btn btn-info" id="btnGuardar" onclick="Guardar()">Guardar
+									Cambios</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<footer th:replace="plantilla/PlantillaAdmin :: footer"></footer>
+		</div>
+	</div>
+
+	<div th:replace="plantilla/PlantillaAdmin :: script"></div>
+</body>
+
+
+<script type="text/javascript">
+	$(function() {
+		Listar();
+		ListarMedicosDisp();
+	});
+	
+	
+	function Guardar() {
+		var idTurno = $("#id_turnoHorario").val();
+		var idPersonal = $("#id_personal").val();
+		
+		if(idPersonal === ''){
+			bootbox.alert("Por favor seleccione un medico disponible.");
+			return;
+		}
+		
+		$.ajax({
+			type : 'POST',
+			url : "/horarios/guardar",
+			data :{
+				idTurno:idTurno,
+				idPersonal:idPersonal
+			},
+			success : function(data, status, xhr) {
+				if (data) {
+					bootbox.alert("Horario del medico registrado correctamente");
+					$("#modalGuardar").modal("hide");
+					Listar();
+					ListarMedicosDisp();
+				} else {
+					bootbox.alert("No se registro horario del personal medico");
+				}
+			},
+			error : function(xhr, status, errMsg) {
+				bootbox.alert("Error :( " + xhr.responseText);
+			}
+		});
+	}
+	
+	function ValidarBotonGuardar(data){
+		if(data.length === 0){
+			$("#btnGuardar").attr("disabled" , true);
+		}else{
+			$("#btnGuardar").removeAttr("disabled");
+		}
+	}
+	
+	function ListarMedicosDisp(){
+		var idTurno = $("#id_turnoHorario").val();
+		
+		var medicos = $("#id_personal");
+		medicos.find("option").remove();
+		 medicos.append("<option value=''>Seleccione</option>");
+		 
+		$.ajax({
+			type : 'GET',
+			url : "/horarios/filtrarMedicosTurno/" + idTurno,
+			dataType:'JSON',
+			success : function(data) {
+				 $.each(data, function (i, item) {
+					 medicos.append("<option value='"+item.ID_PERSONAL+"'>" + item.NOMBRE+" "+item.APELLIDO + "</option>");
+                 });
+				 
+				 ValidarBotonGuardar(data);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+	}
+
+	function ConfirmarEliminar(idTurno, idPersonal) {
+		bootbox
+				.confirm({
+					message : "¿Esta seguro que desea retirar el turno al medico con codigo "
+							+ idPersonal + "?",
+					buttons : {
+						confirm : {
+							label : 'Aceptar',
+							className : 'btn-primary'
+						},
+						cancel : {
+							label : 'Cancelar',
+							className : 'btn-secondary'
+						}
+					},
+					callback : function(result) {
+						if (result) {
+							$
+									.ajax({
+										type : 'delete',
+										url : "/horarios/eliminarTurno",
+										data : {
+											idTurno : idTurno,
+											idPersonal : idPersonal
+										},
+										success : function(data) {
+											if (data) {
+												Listar();
+												ListarMedicosDisp();
+												bootbox
+														.alert("Se ha retirado correctamente el turno del medico ");
+											} else {
+												bootbox
+														.alert("No se ha podido retirar el turno del medico ");
+											}
+										},
+										error : function(jqXHR, textStatus,
+												errorThrown) {
+											if (jqXHR.status === 500) {
+												bootbox.alert("Error.!"
+														+ jqXHR.responseText);
+											} else {
+												bootbox
+														.alert("Error.!Error inexpicable.");
+											}
+										}
+									});
+						}
+					}
+				});
+	}
+
+	function Listar() {
+		var id = $("#id_turno").val();
+		$.ajax({
+			type : 'GET',
+			url : "/horarios/listar/" + id,
+			beforeSend : function(xhr) {
+				$("#resultado").html("Cargando..");
+			},
+			success : function(result) {
+				$("#resultado").html(result);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+	}
+</script>
+</html>

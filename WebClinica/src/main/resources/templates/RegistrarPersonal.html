@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Personal</title>
+<link th:replace="plantilla/PlantillaAdmin :: icono">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+</head>
+
+<style>
+.has-error .help-block {
+	color: red;
+}
+</style>
+<body>
+	<div th:replace="plantilla/PlantillaAdmin :: estilos"></div>
+	<div class="app">
+		<div class="app-wrap">
+			<div th:replace="plantilla/PlantillaAdmin :: loading"></div>
+			<header th:replace="plantilla/PlantillaAdmin :: header"></header>
+
+			<div class="app-container">
+				<aside th:replace="plantilla/PlantillaAdmin :: aside"></aside>
+
+				<div class="app-main" id="main">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card card-statistics">
+									<div class="card-header">
+										<div class="card-heading">
+											<h4 class="card-title">Nuevo Personal</h4>
+
+										</div>
+									</div>
+									<div class="card-body">
+										<form id="frmRegistro" method="post">
+											<div class="modal-body">
+												<div class="form-row">
+													<div class="form-group col-md-6">
+														<label for="nombres">Nombres</label> <input type="text"
+															class="form-control" id="nombre" name="nombre"
+															onkeypress="return soloLetras(event)"
+															placeholder="Nombres Completos">
+													</div>
+													<div class="form-group col-md-6">
+														<label for="apellidos">Apellidos</label> <input
+															type="text" class="form-control" id="apellido"
+															name="apellido" onkeypress="return soloLetras(event)"
+															placeholder="Apellidos Completos">
+													</div>
+												</div>
+												<div class="form-row">
+													<div class="form-group col-md-6">
+														<label for="nombres">DNI</label> <input type="text"
+															class="form-control" id="dni" name="dni"
+															placeholder="Documento Identidad"
+															onkeypress="return soloNumeros(event)">
+													</div>
+													<div class="form-group col-md-6">
+														<label for="apellidos">Genero</label> <select
+															class="form form-control" id="genero" name="genero">
+															<option value="M">Masculino</option>
+															<option value="F">Femenino</option>
+														</select>
+													</div>
+												</div>
+												<div class="form-row">
+													<div class="form-group col-md-6">
+														<label for="correo">Correo</label> <input type="text"
+															class="form-control" id="correo" name="correo"
+															placeholder="Correo Electronico">
+													</div>
+								
+													<div class="form-group col-md-6">
+														<label for="celular">Perfil</label> 
+															<select class="form-control" id="id_perfil" name="usuario.perfil.id_perfil">
+													    		<option th:each="dato:${perfiles}" 
+													    		th:value ="${dato.id_perfil}" th:text="${dato.nombre_perfil}"></option>
+													    	</select>
+													</div>
+												</div>
+
+											</div>
+											<div class="modal-footer">
+												<button type="reset"
+													class="btn btn-square btn-outline-secondary">Nuevo</button>
+												<input type="button" class="btn btn-info" id="btnGuardar"  value="Guardar Cambios">
+											</div>
+										</form>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+
+				</div>
+
+			</div>
+
+			<footer th:replace="plantilla/PlantillaAdmin :: footer"></footer>
+		</div>
+	</div>
+
+	<div th:replace="plantilla/PlantillaAdmin :: script"></div>
+</body>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#frmRegistro').bootstrapValidator({
+			live : 'disabled',
+			fields : {
+				nombre : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						},
+						regexp : {
+							regexp : /^[A-Za-z ñÑ]+$/,
+							message : 'Solo letras o espacios'
+						}
+					}
+				},
+				apellido : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						},
+						regexp : {
+							regexp : /^[A-Za-z ñÑ]+$/,
+							message : 'Solo letras o espacios'
+						}
+					}
+				},
+				dni : {
+					validators : {
+						notEmpty : {
+							message : 'Campo Obligatorio'
+						},
+						stringLength : {
+							min : 8,
+							max : 8,
+							message : 'Debe contener 8 digitos'
+						}
+					}
+				},
+				correo : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						},
+						regexp : {
+							regexp : /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+							message : 'Formato no valido'
+						}
+					}
+				}
+			}
+		}).on('success.form.bv', function(e, data) {
+			$('#frmRegistro').data('bootstrapValidator').resetForm();
+			e.preventDefault();
+			var $form = $(e.target);
+			var bv = $form.data('bootstrapValidator');
+
+			Guardar();
+		});
+
+		$('#btnGuardar').click(function() {
+			$('#frmRegistro').bootstrapValidator('validate');
+		});
+	});
+</script>
+
+
+<script type="text/javascript">
+
+	function Guardar() {
+		$.ajax({
+			type : 'POST',
+			url : "/personal/guardar",
+			data : $("#frmRegistro").serialize(),
+			beforeSend : function(xhr) {
+				$("#btnGuardar").attr('value', "Procesando..");
+			},
+			success : function(data, status, xhr) {
+				if (data) {
+					bootbox.alert("Personal registrado correctamente!!");
+					$("#frmRegistro")[0].reset();
+					$("#btnGuardar").attr('value', "Guardar Cambios");
+				} else {
+					bootbox.alert("No se registro personal");
+				}
+			},
+			error : function(xhr, status, errMsg) {
+				bootbox.alert("Error :( " + xhr.responseText);
+			}
+		});
+	}
+</script>
+</html>

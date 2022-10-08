@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Pagina Principal</title>
+<link th:replace="plantilla/PlantillaAdmin :: icono">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+</head>
+<body>
+	<script type="text/javascript"
+		src="https://www.gstatic.com/charts/loader.js"></script>
+	<script th:src="'assets/grafico/charts.js?ver=' + ${ver}"></script>
+	<div th:replace="plantilla/PlantillaAdmin :: estilos"></div>
+	<div class="app">
+		<div class="app-wrap">
+			<div th:replace="plantilla/PlantillaAdmin :: loading"></div>
+			<header th:replace="plantilla/PlantillaAdmin :: header"></header>
+
+			<div class="app-container">
+
+				<aside th:replace="plantilla/PlantillaAdmin :: aside"></aside>
+
+				<!-- begin app-main -->
+				<div class="app-main" id="main">
+					<!-- begin container-fluid -->
+
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="col-12 mb-2" th:if="${saludo}">
+									<div class="alert alert-info alert-dismissible fade show"
+										role="alert">
+										<span th:text="${saludo}"></span>
+										<button type="button" class="close" data-dismiss="alert"
+											aria-label="Close">
+											<i class="ti ti-close"></i>
+										</button>
+									</div>
+								</div>
+						
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<footer th:replace="plantilla/PlantillaAdmin :: footer"></footer>
+		</div>
+	</div>
+
+	<div th:replace="plantilla/PlantillaAdmin :: script"></div>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmls:th="http://www.thymeleaf.org" lang="es">
+<head>
+	<title>Inicio</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <link rel="stylesheet" href="./vendor/bootstrap/css/bootstrap.min.css">
+    <link href="./vendor/fonts/circular-std/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="./vendor/libs/css/style.css">
+    <link rel="stylesheet" href="./vendor/fonts/fontawesome/css/fontawesome-all.css">
+</head>
+  <style>
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-image: url("/assets/img/fondo3.jpg");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+    </style>
+<body >
+    <div class="splash-container">
+        <div class="card ">
+            <div class="card-header text-center"><a th:href="@{/}">CLINICAL DENTAL FUENTES</a></div>
+            <div class="card-body">
+                <form th:action="@{/}" method="post">
+	                <div role='alert' th:if="${param.error}" class="alert alert-danger" >
+	                        Usuario y/o Clave incorrecto
+	                 </div>
+	                 <div role='alert' th:if="${param.logout}" class="alert alert-success" >
+	                        Sesion cerrada correctamente
+	                 </div>
+                    <div class="form-group">
+                        <input class="form-control form-control-lg" id="username" name="username" type="text" placeholder="Usuario" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control form-control-lg" id="password" name="password" type="password" placeholder="Contraseña">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Iniciar Sesion</button>
+                </form>
+            </div>
+            <div class="card-footer bg-white p-0  ">
+                <div class="card-footer-item card-footer-item-bordered">
+                    <a href="#" class="footer-link">¿Has olvidado tu contraseña?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+  <script src="../vendor/jquery/jquery-3.3.1.min.js"></script>
+  <script src="./vendor/bootstrap/js/bootstrap.bundle.js"></script>
+</html>

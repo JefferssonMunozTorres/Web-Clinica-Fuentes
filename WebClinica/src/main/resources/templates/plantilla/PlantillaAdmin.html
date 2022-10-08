@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<link th:fragment="icono" rel="shortcut icon"
+	th:href="@{'/assets/img/favicon.ico'}">
+<title>Pantilla</title>
+</head>
+<body>
+	<div th:fragment="estilos">
+	
+		<link rel="stylesheet"
+			href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+		<link rel="stylesheet"
+			href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+			
+		<link rel="stylesheet"
+			href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+		<link rel="stylesheet" type="text/css"
+			th:href="@{'/assets/css/vendors.css'}" />
+		<link rel="stylesheet" type="text/css"
+			th:href="@{'/assets/css/style.css'}" />
+		<link rel="stylesheet" type="text/css"
+			th:href="@{'/assets/bootbox/animate.min.css'}" />
+		<link rel="stylesheet" type="text/css"
+			th:href="@{'/assets/css/bootstrapValidator.css'}" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+		<link th:href="@{'/assets/tokenfield/jquery-ui.min.css'}"
+			rel="stylesheet" type="text/css" />
+		
+
+	</div>
+	<div class="loader" th:fragment="loading">
+		<div class="h-100 d-flex justify-content-center">
+			<div class="align-self-center">
+				<img th:src="@{'/assets/img/loader/loader.svg'}" alt="loader">
+			</div>
+		</div>
+	</div>
+
+	<header class="app-header top-bar" th:fragment="header">
+
+		<nav class="navbar navbar-expand-md">
+
+			<div class="navbar-header d-flex align-items-center">
+				<a href="javascript:void:(0)" class="mobile-toggle"><i
+					class="ti ti-align-right"></i></a> <a class="navbar-brand"
+					th:href="@{/home}">DENTAL FUENTES
+				</a>
+			</div>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarSupportedContent"
+				aria-controls="navbarSupportedContent" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<i class="ti ti-align-left"></i>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<div class="navigation d-flex">
+					<ul class="navbar-nav nav-left">
+						<li class="nav-item"><a href="javascript:void(0)"
+							class="nav-link sidebar-toggle"> <i class="ti ti-align-right"></i>
+						</a></li>
+					</ul>
+					<ul class="navbar-nav nav-right ml-auto">
+
+						<li class="nav-item dropdown user-profile"><a
+							href="javascript:void(0)" class="nav-link dropdown-toggle "
+							id="navbarDropdown4" role="button" data-toggle="dropdown"
+							aria-haspopup="true" aria-expanded="false"> <i
+								class="ti ti-user"></i> <span class="bg-success user-status"></span>
+						</a>
+							<div class="dropdown-menu animated fadeIn"
+								aria-labelledby="navbarDropdown">
+								<div class="bg-gradient px-4 py-3">
+									<div class="d-flex align-items-center justify-content-between">
+										<div class="mr-1">
+											<h4 class="text-white mb-0"
+												th:text="${session.nombreLogeado}">Juan Campos Quispe</h4>
+											<small class="text-white"
+												th:text=${session.userLogeado.correo}>juan-124@email.com</small>
+										</div>
+										<form th:action="@{/logout}" method="post">
+
+											<button
+												style="border-radius: 10px; outline: none; background-color: transparent !important;"
+												class="text-white font-20 tooltip-wrapper"
+												data-toggle="tooltip" data-placement="top" title=""
+												data-original-title="Cerrar Sesion">
+												<i class="zmdi zmdi-power"></i>
+											</button>
+										</form>
+
+									</div>
+								</div>
+
+							</div></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<aside class="app-navbar" th:fragment="aside">
+		<div class="sidebar-nav scrollbar scroll_light">
+			<ul class="metismenu " id="sidebarNav">
+				<li class="nav-static-title">Personal</li>
+				<li><a class="has-arrow" href="javascript:void(0)"
+					sec:authorize='hasAnyAuthority("Administrador" , "Recepcion")'
+					aria-expanded="false"><i class="nav-icon ti ti-calendar"></i><span
+						class="nav-title">Personal</span></a>
+					<ul aria-expanded="false">
+						<li sec:authorize='hasAnyAuthority("Administrador")'
+							th:classappend="(${#httpServletRequest.requestURI} == '/personal/registrar')?'active':'' ">
+							<a th:href='@{/personal/nuevo}'>Nuevo</a>
+						</li>
+						<li sec:authorize='hasAnyAuthority("Administrador")'
+							th:classappend="(${#httpServletRequest.requestURI} == '/personal/')?'active':'' ">
+							<a th:href='@{/personal/}'>Mantenimiento</a>
+						</li>
+						<li><a th:href="@{/horarios/}">Horario Medico</a></li>
+					</ul></li>
+
+				<li><a class="has-arrow" href="javascript:void(0)"
+					aria-expanded="false"><i class="nav-icon ti ti-calendar"></i><span
+						class="nav-title">Configuracion</span></a>
+					<ul aria-expanded="false">
+						<li
+							th:classappend="(${#httpServletRequest.requestURI} == '/config')?'active':'' ">
+							<a th:href='@{/config}'>Cambiar contraseña</a>
+						</li>
+					</ul></li>
+			</ul>
+		</div>
+	</aside>
+	<footer class="footer" th:fragment="footer">
+		<div class="row">
+			<div class="col-12 col-sm-6 text-center text-sm-left">
+				<p>&copy; Copyright 2022 - Integrador II.</p>
+			</div>
+		</div>
+	</footer>
+	<div th:fragment="script">
+		<script th:src="@{'/assets/js/ValidarCampos.js'}"></script>
+		<script th:src="@{'/assets/js/vendors.js'}"></script>
+		<script th:src="@{'/assets/js/app.js'}"></script>
+		<script th:src="@{'/assets/bootbox/bootbox.min.js'}"></script>
+		<script th:src="@{'/assets/js/bootstrapValidator.js'}"></script>
+
+		<script th:src="@{'/assets/tokenfield/jquery-ui.min.js'}"
+			type="text/javascript"></script>
+		<script th:src="@{'/assets/tokenfield/bootstrap-tokenfield.js'}"
+			type="text/javascript"></script>
+		<script th:src="@{'/assets/js/report/dataTables.buttons.min.js'}"></script>
+		<script th:src="@{'/assets/js/report/jszip.min.js'}"></script>
+		<script th:src="@{'/assets/js/report/pdfmake.min.js'}"></script>
+		<script th:src="@{'/assets/js/report/vfs_fonts.js'}"></script>
+		<script th:src="@{'/assets/js/report/buttons.html5.min.js'}"></script>
+		<script th:src="@{'/assets/js/report/buttons.print.min.js'}"></script>
+	</div>
+</body>
+</html>
