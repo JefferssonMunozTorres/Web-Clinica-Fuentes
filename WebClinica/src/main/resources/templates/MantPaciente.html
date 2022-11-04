@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Pacientes</title>
+<link th:replace="plantilla/PlantillaAdmin :: icono">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta content="Potenz Global Solutions" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+</head>
+
+<style>
+	.has-error .help-block {
+	  color: red;
+	}
+</style>
+<body>
+	<div th:replace="plantilla/PlantillaAdmin :: estilos"></div>
+	<div class="app">
+		<div class="app-wrap">
+			<div th:replace="plantilla/PlantillaAdmin :: loading"></div>
+			<header th:replace="plantilla/PlantillaAdmin :: header"></header>
+
+			<div class="app-container">
+				<aside th:replace="plantilla/PlantillaAdmin :: aside"></aside>
+
+				<div class="app-main" id="main">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card card-statistics">
+									<div class="card-header" >
+										<div class="card-heading">
+											<h4 class="card-title">Listado de Pacientes</h4>
+
+										</div>
+									</div>
+									
+									<div class="card-body">
+										<form>
+											<div class="form-group row col-sm-6">
+												<label for="staticEmail" class="col-sm-3 col-form-label">Buscar
+													por nombre o DNI</label>
+												<div class="col-sm-6">
+													<input type="search" name="search" id="search"
+														class="form-control">
+												</div>
+												<div class="col-sm-3">
+													<button type="button" class="btn btn-primary"
+														onclick="Buscar()">
+														<i class="fa fa-search"></i> Buscar
+													</button>
+												</div>
+
+											</div>
+										</form>
+
+									</div>
+									
+									<div class="card-body">
+										<button type="button" class="btn btn-success" sec:authorize='hasAnyAuthority("Administrador", "Recepcion")' 
+											data-toggle="modal" data-target="#modalGuardar">
+											<i class="fa fa-plus"></i> Nuevo</a>
+										</button>
+
+										<div id="resultado" class="mt-2"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+
+				</div>
+
+			</div>
+
+
+			<div class="modal fade" id="modalGuardar" tabindex="-1"
+				role="dialog" aria-labelledby="exampleModalLongTitle"
+				aria-hidden="true">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title" id="exampleModalLongTitle">Nuevo
+								Paciente</h4>
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<form id="frmRegistro" method="post">
+							<div class="modal-body">
+								<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="nombres">Nombres</label> <input type="text"
+											class="form-control" id="nombres" name="nombres" onkeypress="return soloLetras(event)"
+											placeholder="Nombres Completos">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="apellidos">Apellidos</label> <input
+											type="text" class="form-control" id="apellidos" name="apellidos" onkeypress="return soloLetras(event)"
+											placeholder="Apellidos Completos">
+									</div>
+								</div>
+									<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="nombres">DNI</label> <input type="text"
+											class="form-control" id="dni" name="dni" placeholder="Documento Identidad" onkeypress="return soloNumeros(event)">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="apellidos">Genero</label>
+										<select class="form form-control" id="genero" name="genero">
+											<option value="M">Masculino</option>
+											<option value="F">Femenino</option>
+										</select>
+									</div>
+								</div>
+									<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="correo">Correo</label> <input type="text"
+											class="form-control" id="correo" name="correo" placeholder="Correo Electronico">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="celular">Celular</label> <input
+											type="tel" class="form-control" id="celular" name="celular" onkeypress="return soloNumeros(event)"
+											placeholder="Numero Celular">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="direccion">Direccion</label> <input type="text"
+										class="form-control" id="direccion" name="direccion"
+										placeholder="Direccion">
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="reset"
+									class="btn btn-square btn-outline-secondary">Nuevo</button>
+								<button type="button" class="btn btn-info" id="btnGuardar">Guardar
+									Cambios</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			
+			
+			<div class="modal fade" id="modalActualizar" tabindex="-1"
+				role="dialog" aria-labelledby="exampleModalLongTitle"
+				aria-hidden="true">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title" id="exampleModalLongTitle">Actualizar
+								Paciente</h4>
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<form id="frmActualizar" method="post">
+							<div class="modal-body">
+								<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="nombres">Nombres</label> <input type="text"
+											class="form-control" id="nombresA" name="nombres" onkeypress="return soloLetras(event)"
+											placeholder="Nombres Completos">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="apellidos">Apellidos</label> <input
+											type="text" class="form-control" id="apellidosA" name="apellidos" onkeypress="return soloLetras(event)"
+											placeholder="Apellidos Completos">
+									</div>
+								</div>
+									<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="nombres">DNI</label> <input type="text"
+											class="form-control" id="dniA" name="dni" placeholder="Documento Identidad" onkeypress="return soloNumeros(event)">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="apellidos">Genero</label>
+										<select class="form form-control" id="generoA" name="genero">
+											<option value="M">Masculino</option>
+											<option value="F">Femenino</option>
+										</select>
+									</div>
+								</div>
+									<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="correo">Correo</label> <input type="text"
+											class="form-control" id="correoA" name="correo" placeholder="Correo Electronico">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="celular">Celular</label> <input
+											type="tel" class="form-control" id="celularA" name="celular" onkeypress="return soloNumeros(event)"
+											placeholder="Numero Celular">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="direccion">Direccion</label> <input type="text"
+										class="form-control" id="direccionA" name="direccion"
+										placeholder="Direccion">
+								</div>
+							</div>
+							<div class="modal-footer">
+								<input type="hidden" name="id_paciente" id="id_pacienteA">
+								<button type="reset"
+									class="btn btn-square btn-outline-secondary">Nuevo</button>
+								<button type="button" class="btn btn-info" id="btnGuardar">Actualizar
+									Cambios</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<footer th:replace="plantilla/PlantillaAdmin :: footer"></footer>
+		</div>
+	</div>
+
+	<div th:replace="plantilla/PlantillaAdmin :: script"></div>
+</body>
+
+<script type="text/javascript">
+     $(document).ready(function () {
+         $('#frmRegistro').bootstrapValidator({
+        	 live: 'disabled',
+             fields: {
+                 nombres: {
+                     validators: {
+                         notEmpty: {
+                             message: 'Campo obligatorio'
+                         },
+                         regexp: {
+                             regexp: /^[A-Za-z ñÑ]+$/,
+                             message: 'Solo letras o espacios'
+                         }
+                     }
+                 },
+                 apellidos: {
+                     validators: {
+                         notEmpty: {
+                             message: 'Campo obligatorio'
+                         },
+                         regexp: {
+                             regexp: /^[A-Za-z ñÑ]+$/,
+                             message: 'Solo letras o espacios'
+                         }
+                     }
+                 },
+                 dni: {
+                     validators: {
+                    	 notEmpty: {
+    					 	message: 'Campo Obligatorio'
+    					 },
+                         stringLength: {
+                             min: 8,
+                             max: 8,
+                             message: 'Debe contener 8 digitos'
+                         }
+                     }
+                 },
+				correo : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						},
+						regexp : {
+							regexp : /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+							message : 'Formato no valido'
+						}
+					}
+				}
+             }
+         }).on('success.form.bv', function(e, data){
+        	 $('#frmRegistro').data('bootstrapValidator').resetForm();
+             e.preventDefault();
+             var $form = $(e.target);
+             var bv = $form.data('bootstrapValidator');
+
+             Guardar();
+         });
+
+
+         $('#btnGuardar').click(function () {
+             $('#frmRegistro').bootstrapValidator('validate');
+         });
+     });
+
+</script>
+
+
+<script type="text/javascript">
+	$(function() {
+		Listar();
+	});
+
+	function Guardar(){
+		$.ajax({
+            type: 'POST',
+            url: "/paciente/guardar",
+            data: $("#frmRegistro").serialize(),
+            cache: false,
+            success: function (data, status, xhr) {
+            	if(data ==="OK"){
+            		bootbox.alert("Paciente registrado correctamente!!");
+            		$("#modalGuardar").modal("hide");
+            		$("#frmRegistro")[0].reset();
+            		Listar();
+            		
+            	}else{
+            		bootbox.alert(data);
+            	}
+            }
+            , error: function (xhr, status, errMsg) {
+            	bootbox.alert("Error :( " + xhr.responseText);
+            }
+        });
+	}
+	
+	function ConfirmarEliminar(id){
+		 bootbox.confirm({
+             message: "¿Esta seguro que desea eliminar al paciente con codigo " + id + "?",
+             buttons: {
+                 confirm: {
+                     label: 'Aceptar',
+                     className: 'btn-primary'
+                 },
+                 cancel: {
+                     label: 'Cancelar',
+                     className: 'btn-secondary'
+                 }
+             },
+             callback: function (result) {
+                 if (result) {
+                	 $.ajax({
+                         type: 'delete',
+                         url: "/paciente/eliminar/"+id,
+                         data: {},
+                         success: function (data) {
+                             if (data) {
+                                 Listar();
+                                 bootbox.alert("Se ha eliminado correctamente al paciente ");
+                             } else {
+                            	 bootbox.alert("No se ha podido eliminar al paciente ");
+                             }
+                         },
+                         error: function (jqXHR, textStatus, errorThrown) {
+                             if (jqXHR.status === 500) {
+                            	 bootbox.alert("Error.!" + jqXHR.responseText);
+                             } else {
+                            	 bootbox.alert("Error.!Error inexpicable.");
+                             }
+                         }
+                     });
+                 }
+             }
+         });
+	}
+	
+	function Listar() {
+		$.ajax({
+			type : 'GET',
+			url : "/paciente/listar",
+			data : {},
+			beforeSend : function(xhr) {
+				$("#resultado").html("Cargando..");
+			},
+			success : function(result) {
+				$("#resultado").html(result);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+	}
+	
+	function BuscarPorId(id){
+		$.ajax({
+			type : 'GET',
+			url : "/paciente/buscar/"+id,
+			dataType:'JSON',
+			data : {},
+			success : function(data) {
+				$("#modalActualizar").modal("show");
+				$("#nombresA").val(data.nombres);
+				$("#apellidosA").val(data.apellidos);
+				$("#dniA").val(data.dni);
+				$("#generoA").val(data.genero);
+				$("#celularA").val(data.celular);
+				$("#direccionA").val(data.direccion);
+				$("#correoA").val(data.correo);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+	}
+	
+	function Buscar() {
+		var search = $("#search").val();
+
+		$.ajax({
+			type : 'GET',
+			url : "/paciente/listarPaciente",
+			data : {
+				search : search
+			},
+			beforeSend : function(xhr) {
+				$("#resultado").html("Cargando..");
+			},
+			success : function(result) {
+				$("#resultado").html(result);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+	}
+</script>
+</html>

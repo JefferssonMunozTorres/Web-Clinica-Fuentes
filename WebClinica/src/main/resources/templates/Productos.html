@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Historia</title>
+<link th:replace="plantilla/PlantillaAdmin :: icono">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta content="Potenz Global Solutions" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+</head>
+
+<style>
+.has-error .help-block {
+	color: red;
+}
+</style>
+<body>
+	<div th:replace="plantilla/PlantillaAdmin :: estilos"></div>
+	<div class="app">
+		<div class="app-wrap">
+			<div th:replace="plantilla/PlantillaAdmin :: loading"></div>
+			<header th:replace="plantilla/PlantillaAdmin :: header"></header>
+
+			<div class="app-container">
+				<aside th:replace="plantilla/PlantillaAdmin :: aside"></aside>
+
+				<div class="app-main" id="main">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card card-statistics">
+									<div class="card-header">
+										<div class="card-heading">
+											<h4 class="card-title">Lista de Producto</h4>
+
+										</div>
+									</div>
+									<div class="card-body">
+										<form>
+											<div class="form-group row col-sm-6">
+												<label for="staticEmail" class="col-sm-3 col-form-label">Buscar
+													por nombre</label>
+												<div class="col-sm-6">
+													<input type="search" name="nombre" id="nombre"
+														class="form-control">
+												</div>
+												<div class="col-sm-3">
+													<button type="button" class="btn btn-primary"
+														onclick="Buscar()">
+														<i class="fa fa-search"></i> Buscar
+													</button>
+												</div>
+
+											</div>
+										</form>
+
+
+										<div id="resultado" class="mt-2"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header bg-info">
+							<h4 class="modal-title  text-white" id="exampleModalLongTitle">Ver
+								Producto</h4>
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<img id="preview" class="img-thumbnail rounded float-none"
+							style="max-width: 25%;" />
+						<form method="post" id="frmDetalle">
+							<div class="modal-body">
+								<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="nombres">Nombre</label> <input type="text"
+											class="form-control" id="nombres" name="nombres"
+											onkeypress="return soloLetras(event)"
+											placeholder="Nombre del Producto">
+											<input type="hidden"
+											class="form-control" id="id" name="id">
+									</div>
+									<div class="form-group col-md-6">
+										<label for="precio_unitario">Precio</label> <input type="text"
+											class="form-control" id="precio_unitario"
+											name="precio_unitario"
+											onkeypress="return filterFloat(event,this);"
+											placeholder="Precio del Producto">
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="stock">Stock</label> <input type="text"
+											class="form-control" id="stock" name="stock"
+											placeholder="Stock del Producto"
+											onkeypress="return soloNumeros(event)">
+									</div>
+									<input id="fileImagen"style="visibility: hidden; position: absolute;"
+										type="file" name="imagen" class="file" accept=".jpg,.jpeg,.png" >
+									<div class="form-group col-md-12">
+										<!-- <label for="imagen">Imagen</label> <input type="file"
+											class="form-control" id="imagen" name="imagen"
+											onchange="validateFileType()"
+											placeholder="Imagen del Producto" accept=".jpg,.jpeg,.png">
+											 -->
+
+										<input type="text" class="form-control" disabled
+											placeholder="Upload File" id="file">
+										<div class="input-group-append">
+											<button type="button" class="browse btn btn-primary">Subir
+												Imagen</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-info" id="btnGuardar">Actualizar</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<footer th:replace="plantilla/PlantillaAdmin :: footer"></footer>
+		</div>
+	</div>
+
+	<div th:replace="plantilla/PlantillaAdmin :: script"></div>
+</body>
+
+<script type="text/javascript">
+	$(function() {
+		Buscar();
+
+		$(document).on("click", ".browse", function() {
+			var file = $(this).parents().find(".file");
+			file.trigger("click");
+		});
+		$('input[type="file"]').change(function(e) {
+			var fileName = e.target.files[0].name;
+			$("#file").val(fileName);
+
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				// get loaded data and render thumbnail.
+				document.getElementById("preview").src = e.target.result;
+			};
+			// read the image file as a data URL.
+			reader.readAsDataURL(this.files[0]);
+		});
+		
+		
+		$('#frmDetalle').bootstrapValidator({
+			live : 'disabled',
+			fields : {
+				nombres : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						},
+						regexp : {
+							regexp : /^[A-Za-z-0-9 ñÑ]+$/,
+							message : 'Solo letras , numeros o espacios'
+						}
+					}
+				},
+				precio_unitario : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						}
+					}
+				},
+				stock : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						}
+					}
+				}
+			}
+		}).on('success.form.bv', function(e, data) {
+			$('#frmDetalle').data('bootstrapValidator').resetForm();
+			e.preventDefault();
+			var $form = $(e.target);
+			var bv = $form.data('bootstrapValidator');
+
+			Actualizar();
+		});
+
+		$('#btnGuardar').click(function() {
+			$('#frmDetalle').bootstrapValidator('validate');
+		});
+	});
+
+	function BuscarDetalle(id) {
+		console.log("BuscarDetalle: " + id);
+		$.ajax({
+			type : 'GET',
+			dataType : 'JSON',
+			url : "/producto/buscarId",
+			data : {
+				id : id
+			},
+			success : function(data) {
+				//document.getElementById("foto").style.display = "visible";
+				$("#nombres").val(data.nombre);
+				$("#precio_unitario").val(data.precio_unitario);
+				$("#stock").val(data.stock);
+				$("#id").val(id);
+				
+				var ubi = '/uploads/' + data.imagen;
+				var fileName=data.imagen.split("_")[1];
+				//$("#imagen").val(data.imagen);
+				$("#file").val(fileName);
+				document.getElementById("preview").src = ubi;
+
+				$("#modalDetalle").modal("show");
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+
+	}
+
+	function Buscar() {
+		var dni = $("#nombre").val();
+
+		$.ajax({
+			type : 'GET',
+			url : "/producto/buscar",
+			data : {
+				search : dni
+			},
+			beforeSend : function(xhr) {
+				$("#resultado").html("Cargando..");
+			},
+			success : function(result) {
+				$("#resultado").html(result);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status === 500) {
+					bootbox.alert("Error : " + jqXHR.responseText);
+				} else {
+					bootbox.alert("Error inexpicable.");
+				}
+			}
+		});
+	}
+	function Actualizar() {
+		var values = {}
+		values['nombre'] = $("#nombres").val();
+		values['precio'] = $("#precio_unitario").val();
+		values['stock'] = $("#stock").val();
+		values['id'] = $("#id").val();
+		var formData = new FormData();
+		var file=$('#fileImagen').get(0).files.item(0);
+		formData.append("file", file);
+		formData.append('values',JSON.stringify(values));
+		
+		$.ajax({
+			type : 'POST',
+			enctype : 'multipart/form-data',
+			url : "/producto/actualizar",
+			data : formData,
+			processData : false,
+			contentType : false,
+			cache : false,
+			timeout : 600000,
+			beforeSend : function(xhr) {
+				$("#btnGuardar").attr('value', "Procesando..");
+			},
+			success : function(data, status, xhr) {
+				if (data) {
+					$("#modalDetalle").modal("hide");
+					bootbox.alert("Producto registrado correctamente!!");
+					
+					Buscar();
+				} else {
+					bootbox.alert("No se registro producto");
+				}
+			},
+			error : function(xhr, status, errMsg) {
+				bootbox.alert("Error :( " + xhr.responseText);
+			}
+		});
+	}
+</script>
+</html>

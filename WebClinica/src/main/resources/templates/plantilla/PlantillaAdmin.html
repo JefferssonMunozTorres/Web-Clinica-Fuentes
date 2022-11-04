@@ -121,6 +121,32 @@
 						<li><a th:href="@{/horarios/}">Horario Medico</a></li>
 					</ul></li>
 
+				<li
+					th:classappend="(${#httpServletRequest.requestURI} == '/paciente/')?'active':'' "><a
+					th:href="@{/paciente/}" aria-expanded="false"><i
+						class="nav-icon ti ti-user"></i><span class="nav-title">Paciente</span></a>
+				</li>
+
+			
+
+				<li
+					sec:authorize='hasAnyAuthority("Administrador" , "Farmaceutico" )'><a
+					class="has-arrow" href="javascript:void(0)" aria-expanded="false"><i
+						class="nav-icon ti ti-calendar"></i><span class="nav-title">Producto</span></a>
+					<ul aria-expanded="false">
+						<li
+							sec:authorize='hasAnyAuthority("Administrador" , "Farmaceutico" )'
+							th:classappend="(${#httpServletRequest.requestURI} == '/producto/nuevo')?'active':'' ">
+							<a th:href='@{/producto/nuevo}'>Registrar</a>
+						</li>
+						<li
+							sec:authorize='hasAnyAuthority("Administrador" , "Farmaceutico" )'
+							th:classappend="(${#httpServletRequest.requestURI} == '/producto/todos')?'active':'' ">
+							<a th:href='@{/producto/}'>Listado Productos</a>
+						</li>
+					</ul></li>
+
+
 				<li><a class="has-arrow" href="javascript:void(0)"
 					aria-expanded="false"><i class="nav-icon ti ti-calendar"></i><span
 						class="nav-title">Configuracion</span></a>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Producto</title>
+<link th:replace="plantilla/PlantillaAdmin :: icono">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta content="Potenz Global Solutions" name="author" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+</head>
+
+<style>
+.has-error .help-block {
+	color: red;
+}
+</style>
+<body>
+	<div th:replace="plantilla/PlantillaAdmin :: estilos"></div>
+	<div class="app">
+		<div class="app-wrap">
+			<div th:replace="plantilla/PlantillaAdmin :: loading"></div>
+			<header th:replace="plantilla/PlantillaAdmin :: header"></header>
+
+			<div class="app-container">
+				<aside th:replace="plantilla/PlantillaAdmin :: aside"></aside>
+
+				<div class="app-main" id="main">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card card-statistics">
+									<div class="card-header">
+										<div class="card-heading">
+											<h4 class="card-title">Nuevo Producto</h4>
+
+										</div>
+									</div>
+									<div class="card-body">
+										<form id="frmRegistro" method="post">
+											<div class="modal-body">
+												<div class="form-row">
+													<div class="form-group col-md-6">
+														<label for="nombres">Nombre</label> <input type="text"
+															class="form-control" id="nombre" name="nombre"
+															onkeypress="return soloLetras(event)"
+															placeholder="Nombre del Producto">
+													</div>
+													<div class="form-group col-md-6">
+														<label for="precio_unitario">Precio</label> <input
+															type="text" class="form-control" id="precio_unitario"
+															name="precio_unitario"   onkeypress="return filterFloat(event,this);"
+															placeholder="Precio del Producto">
+													</div>
+												</div>
+												<div class="form-row">
+													<div class="form-group col-md-6">
+														<label for="stock">Stock</label> <input type="text"
+															class="form-control" id="stock" name="stock"
+															placeholder="Stock del Producto"
+															onkeypress="return soloNumeros(event)">
+													</div>
+													<div class="form-group col-md-6">
+														<label for="imagen">Imagen</label> <input type="file"
+															class="form-control" id="imagen" name="imagen" onchange="validateFileType()"
+															placeholder="Imagen del Producto" accept=".jpg,.jpeg,.png"
+															>
+													</div>
+												</div>
+
+											</div>
+											<div class="modal-footer">
+												<button type="reset"
+													class="btn btn-square btn-outline-secondary">Nuevo</button>
+												<input type="button" class="btn btn-info" id="btnGuardar"  value="Guardar Cambios">
+											</div>
+										</form>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+
+				</div>
+
+			</div>
+
+			<footer th:replace="plantilla/PlantillaAdmin :: footer"></footer>
+		</div>
+	</div>
+
+	<div th:replace="plantilla/PlantillaAdmin :: script"></div>
+</body>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#frmRegistro').bootstrapValidator({
+			live : 'disabled',
+			fields : {
+				nombre : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						},
+						regexp : {
+							regexp : /^[A-Za-z-0-9 ñÑ]+$/,
+							message : 'Solo letras , numeros o espacios'
+						}
+					}
+				},
+				precio_unitario : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						}
+					}
+				},
+				stock : {
+					validators : {
+						notEmpty : {
+							message : 'Campo obligatorio'
+						}
+					}
+				}
+			}
+		}).on('success.form.bv', function(e, data) {
+			$('#frmRegistro').data('bootstrapValidator').resetForm();
+			e.preventDefault();
+			var $form = $(e.target);
+			var bv = $form.data('bootstrapValidator');
+
+			Guardar();
+		});
+
+		$('#btnGuardar').click(function() {
+			$('#frmRegistro').bootstrapValidator('validate');
+		});
+	});
+</script>
+
+
+<script type="text/javascript">
+	function validateFileType(){
+	    var fileName = document.getElementById("imagen").value;
+	    var idxDot = fileName.lastIndexOf(".") + 1;
+	    var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
+	    if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
+	        //TO DO
+	    }else{
+	    	document.getElementById("imagen").value=null;
+	        alert("Solo se permite archivos con formato jpg,jpeg y png!");
+	       
+	    }   
+	}
+	function Guardar() {
+		var values = {}
+		values['nombre'] = $("#nombre").val();
+		values['precio'] = $("#precio_unitario").val();
+		values['stock'] = $("#stock").val();
+		
+		var formData = new FormData();
+		var dato_archivo = $('#imagen').prop("files");
+		$.each(dato_archivo, function(i, file) {
+		    //formData.append("file", file);
+		});
+		var file=$('#imagen').get(0).files.item(0);
+		formData.append("file", file);
+		formData.append('values',JSON.stringify(values));
+		
+		$.ajax({
+			type : 'POST',
+			enctype : 'multipart/form-data',
+			url : "/producto/guardar",
+			data : formData,
+			processData : false,
+			contentType : false,
+			cache : false,
+			timeout : 600000,
+			beforeSend : function(xhr) {
+				$("#btnGuardar").attr('value', "Procesando..");
+			},
+			success : function(data, status, xhr) {
+				if (data) {
+					bootbox.alert("Producto registrado correctamente!!");
+					$("#frmRegistro")[0].reset();
+					$("#btnGuardar").attr('value', "Guardar Cambios");
+				} else {
+					bootbox.alert("No se registro producto");
+				}
+			},
+			error : function(xhr, status, errMsg) {
+				bootbox.alert("Error :( " + xhr.responseText);
+			}
+		});
+	}
+</script>
+</html>
