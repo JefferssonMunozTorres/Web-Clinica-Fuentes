@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="ISO-8859-1">
+<title>Historia</title>
+</head>
+<body>
+<div class="datatable-wrapper table-responsive">
+	<table class="table table-bordered" id="MiTabla">
+		<thead>
+			<tr>
+				<th>Nro Cita</th>
+				<th>Paciente</th>
+				<th>Medico</th>
+				<th>Fecha</th>
+				<th>Horario</th>
+				<th>Ver</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="dato: ${citas}">
+				<td th:text="${dato.nro_cita}"></td>
+				<td th:text="${dato.paciente.nombres}+' '+${dato.paciente.apellidos}"></td>
+				<td th:text="${dato.personal.nombre}+' '+${dato.personal.apellido}"></td>
+				<td th:text="${#dates.format(dato.fecha, 'dd-MM-yyyy')}"></td>
+				<td th:text="${dato.hora.hora_inicio}"></td>
+				<td>
+					<a href="javascript:void(0)"  th:attr="onclick='BuscarDetalle( ' + ${dato.nro_cita} + ')'" class="btn btn-success" title="Detalle Cita"><i class="fa fa-book"> Detalle</i></a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+</body>
+<script>
+    $(document).ready(function () {
+        var table = $('#MiTabla').DataTable({
+            language: {
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+                "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+                "sSearch": "Buscar:",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sLast": "Último",
+                    "sNext": "Siguiente",
+                    "sPrevious": "Anterior"
+                },
+                "sProcessing": "Procesando...",
+            },
+            //para usar los botones   
+
+            responsive: "true",
+            dom: 'Bfrtip',
+            //   dom: 'Blfrtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Excell ',
+                    title: "Reporte de Pacientes",
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success  mb-3',
+                    exportOptions: {
+                        // columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF ',
+                    title: "Reporte de Pacientes",
+                    titleAttr: 'Exportar a PDF',
+                    className: 'btn btn-danger  mb-3',
+                    exportOptions: {
+                        // columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: 'Imprimir ',
+                    title: "Reporte de Pacientes",
+                    titleAttr: 'Imprimir',
+                    className: 'btn btn-info  mb-3',
+                    exportOptions: {
+                        // columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: ':visible'
+                    }
+                }, {
+                    extend: 'colvis',
+                    text: 'Filtrar ',
+                    titleAttr: 'Filtrar',
+                    className: 'btn btn-primary mb-3',
+                    attr: {
+                        id: 'FiltroButton'
+                    },
+                    exportOptions: {
+                        // columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: ':visible'
+
+                    }
+                }
+            ]
+        });
+    });
+</script>
+
+</html>
